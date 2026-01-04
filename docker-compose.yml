@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  backend:
+    build: ./backend
+    container_name: gfg-scraper-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app # Hot reload for development
+    environment:
+      - TIMEOUT_STD=45000
+      - TIMEOUT_SHORT=30000
+    # Increase shared memory size to prevent browser crashes
+    shm_size: "2gb"
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: gfg-scraper-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      # This URL is for the server-side Next.js fetching
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
